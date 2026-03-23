@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>File Complaint</title>
+  <link rel="stylesheet" href="complain.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="nav">
+  <div class="logo">
+    <span class="logo-box">CP</span>
+    <span>ComplainPortal</span>
+  </div>
+  <div class="back">← Back to Home</div>
+</nav>
+
+<!-- Header -->
+<section class="header">
+  <h1>File a Complaint</h1>
+  <p>Describe your issue in detail. All complaints are reviewed within 48 hours.</p>
+</section>
+
+<!-- Form Card -->
+<div class="form-card">
+  <form id="complaintForm" onsubmit="submitComplaint(event)">
+
+    <!-- Personal Info -->
+    <h3>Personal Information</h3>
+    <p class="sub">Your details will remain confidential.</p>
+
+    <div class="row">
+      <div>
+        <label>Full Name *</label>
+        <input type="text" id="name" placeholder="Enter your full name" required>
+      </div>
+      <div>
+        <label>Email Address *</label>
+        <input type="email" placeholder="you@example.com" required>
+      </div>
+    </div>
+
+    <label>Phone Number (Optional)</label>
+    <input type="text" placeholder="+91 9876543210">
+
+    <!-- Complaint Details -->
+    <h3>Complaint Details</h3>
+    <p class="sub">Provide as much detail as possible to help us act quickly.</p>
+
+    <div class="row">
+      <div>
+        <label>Category *</label>
+        <select required>
+          <option>Select a category</option>
+          <option>Road</option>
+          <option>Water</option>
+          <option>Electricity</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Priority Level</label>
+        <select>
+          <option>Medium — Affects daily life</option>
+          <option>High</option>
+          <option>Low</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Subject *</label>
+    <input type="text" id="issue" placeholder="Brief summary of the issue" required>
+
+    <label>Description *</label>
+    <textarea placeholder="Describe the issue in detail..."></textarea>
+
+    <label>Location</label>
+    <input type="text" placeholder="Street address or area name">
+
+    <!-- Upload -->
+    <h3>Supporting Evidence</h3>
+    <p class="sub">Upload photos or documents (max 5 files).</p>
+
+    <div class="upload-box">
+      Click to upload or drag & drop <br>
+      <small>PNG, JPG, PDF up to 10MB</small>
+    </div>
+
+    <!-- Buttons -->
+    <div class="actions">
+      <button type="button" class="btn-cancel">Cancel</button>
+      <button type="submit" class="btn-submit">Submit Complaint</button>
+    </div>
+
+  </form>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-left">
+    <span class="logo-box">CP</span>
+    <span>ComplainPortal</span>
+  </div>
+
+  <div class="footer-links">
+    <a>About</a>
+    <a>Privacy</a>
+    <a>Terms</a>
+    <a>Contact</a>
+  </div>
+
+  <div class="footer-right">
+    © 2026 ComplainPortal
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

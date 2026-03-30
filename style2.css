@@ -50,6 +50,7 @@ nav a {
   font-weight: 600;
   font-size: 16px;
   box-shadow: 0 0 15px rgba(45, 212, 191, 0.5);
+  text-decoration: none;
 }
 
 .btn-outline {

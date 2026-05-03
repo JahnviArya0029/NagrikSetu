@@ -59,6 +59,7 @@
       align-items: center;
       list-style: none;
     }
+
     .nav-links li {
       margin: 0 25px;
     }
@@ -593,7 +594,7 @@
           imagesHTML = `
         <div class="attachments">
           ${c.attachments.map(file => `
-            <img src="http://localhost:8001/${file}" class="complaint-img" />
+<img src="https://nagriksetu-backend.onrender.com/${file}" class="complaint-img" />
           `).join("")}
         </div>
       `;

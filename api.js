@@ -1,7 +1,7 @@
 // ── api.js — NagrikSetu frontend API layer ──
 // Role-based access control + auth-wall modal
 
-const API_BASE = 'http://localhost:8001/api';
+const API_BASE = 'https://nagriksetu-backend.onrender.com/api';
 
 // ─────────────────────────────────────────────────────────────
 // JWT / Token Management

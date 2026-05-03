@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ComplainPortal — My Complaints</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: #0d1b2a;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: #14b8a6;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0d1b2a;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      list-style: none;
+    }
+    .nav-links li {
+      margin: 0 25px;
+    }
+
+    .nav-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 15px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #ffffff;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #14b8a6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #0d1b2a;
+    }
+
+    .nav-name {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .btn-primary {
+      background: #14b8a6;
+      color: #0d1b2a;
+      font-weight: 700;
+      padding: 9px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #0f9488;
+    }
+
+    /* ── Page ── */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 36px 24px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: gap;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .page-sub {
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    /* ── Stats row ── */
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 120px;
+      background: #112236;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    .num-total {
+      color: #fff;
+    }
+
+    .num-pending {
+      color: #f59e0b;
+    }
+
+    .num-progress {
+      color: #3b82f6;
+    }
+
+    .num-resolved {
+      color: #14b8a6;
+    }
+
+    /* ── Filter tabs ── */
+    .filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: transparent;
+      color: #94a3b8;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .filter-btn:hover {
+      border-color: #14b8a6;
+      color: #14b8a6;
+    }
+
+    .filter-btn.active {
+      background: #14b8a6;
+      color: #0d1b2a;
+      border-color: #14b8a6;
+      font-weight: 700;
+    }
+
+    /* ── Complaint cards ── */
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: #112236;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 20px 24px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(20, 184, 166, 0.3);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .card-id {
+      font-size: 11px;
+      color: #475569;
+      font-family: monospace;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .badge-pending .badge-dot {
+      background: #f59e0b;
+    }
+
+    .badge-progress {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+    }
+
+    .badge-progress .badge-dot {
+      background: #60a5fa;
+    }
+
+    .badge-resolved {
+      background: rgba(20, 184, 166, 0.15);
+      color: #14b8a6;
+    }
+
+    .badge-resolved .badge-dot {
+      background: #14b8a6;
+    }
+
+    /* Category tag */
+    .cat-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.06);
+      color: #94a3b8;
+    }
+
+    /* Add comment section */
+    .comment-section {
+      margin-top: 14px;
+    }
+
+    .comment-toggle {
+      background: none;
+      border: none;
+      color: #14b8a6;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .comment-toggle:hover {
+      text-decoration: underline;
+    }
+
+    .comment-box {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .comment-box.open {
+      display: block;
+    }
+
+    .comment-input {
+      width: 100%;
+      padding: 9px 12px;
+      background: #0d1b2a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      resize: vertical;
+      min-height: 70px;
+      transition: border-color 0.2s;
+    }
+
+    .comment-input:focus {
+      border-color: #14b8a6;
+    }
+
+    .comment-send {
+      margin-top: 8px;
+      padding: 7px 18px;
+      background: #14b8a6;
+      color: #0d1b2a;
+      font-weight: 700;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .comment-send:hover {
+      background: #0f9488;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #475569;
+      display: none;
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .empty h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .empty p {
+      font-size: 13px;
+    }
+
+    .attachments {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .complaint-img {
+      width: 130px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body style="visibility: hidden;">
+
+  <!-- Navbar -->
+  <nav>
+    <a href="index1.html" class="logo">
+      <div class="logo-icon">CP</div>
+      <span class="logo-text">ComplainPortal</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="about.html">About</a></li>
+      <li><a href="#" class="active">My Complaints</a></li>
+      <li><a href="publicTracker.html">Public Tracker</a></li>
+      <li id="admin-link" style="display: none;"><a href="adminDashboard.html">Admin Dashboard</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="avatar" id="avatar">U</div>
+      <span class="nav-name" id="nav-name">User</span>
+      <a href="complaint.html" class="btn-primary">+ New Complaint</a>
+      <button onclick="logout()"
+        style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; margin-left: 12px;">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">My Complaints</div>
+        <div class="page-sub">Track and manage all your filed complaints</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num num-total" id="count-total">3</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num num-pending" id="count-pending">1</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num num-progress" id="count-progress">1</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num num-resolved" id="count-resolved">1</div>
+        <div class="stat-label">Resolved</div>
+      </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterComplaints('all', this)">All</button>
+      <button class="filter-btn" onclick="filterComplaints('pending', this)">Pending</button>
+      <button class="filter-btn" onclick="filterComplaints('in_progress', this)">In Progress</button>
+      <button class="filter-btn" onclick="filterComplaints('resolved', this)">Resolved</button>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards" id="cards-container"></div>
+
+    <!-- Empty state -->
+    <div class="empty" id="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No complaints found</h3>
+      <p>No complaints match this filter.</p>
+    </div>
+
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    let complaints = [];
+    let currentFilter = 'all';
+
+    // ✅  STATUS CONFIG 
+    const statusConfig = {
+      'Pending': { label: 'Pending', cls: 'badge-pending' },
+      'In Progress': { label: 'In Progress', cls: 'badge-progress' },
+      'Resolved': { label: 'Resolved', cls: 'badge-resolved' }
+    };
+
+    // Load complaints
+    async function loadComplaints() {
+      try {
+        const response = await ComplaintsAPI.getMyComplaints();
+        complaints = response.data || [];
+        updateStats();
+        renderCards(currentFilter);
+      } catch (error) {
+        console.error(error);
+        showError('Failed to load complaints');
+      }
+    }
+
+    // ✅ FIXED stats
+    function updateStats() {
+      const total = complaints.length;
+      const pending = complaints.filter(c => c.status === 'Pending').length;
+      const progress = complaints.filter(c => c.status === 'In Progress').length;
+      const resolved = complaints.filter(c => c.status === 'Resolved').length;
+
+      document.getElementById('count-total').textContent = total;
+      document.getElementById('count-pending').textContent = pending;
+      document.getElementById('count-progress').textContent = progress;
+      document.getElementById('count-resolved').textContent = resolved;
+    }
+
+    // Render cards
+    function renderCards(filter) {
+      const container = document.getElementById('cards-container');
+      const empty = document.getElementById('empty-state');
+
+      const filtered = filter === 'all'
+        ? complaints
+        : complaints.filter(c => c.status === filter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+
+      container.innerHTML = filtered.map((c, i) => {
+
+        const s = statusConfig[c.status] || statusConfig['Pending'];
+
+        const date = new Date(c.createdAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+
+        // ✅ IMAGE BLOCK (NEW)
+        let imagesHTML = "";
+        if (c.attachments && c.attachments.length > 0) {
+          imagesHTML = `
+        <div class="attachments">
+          ${c.attachments.map(file => `
+            <img src="http://localhost:8001/${file}" class="complaint-img" />
+          `).join("")}
+        </div>
+      `;
+        }
+
+        return `
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-id">#${c._id.slice(-8).toUpperCase()}</div>
+            <div class="card-title">${c.title}</div>
+          </div>
+          <span class="badge ${s.cls}">
+            <span class="badge-dot"></span>${s.label}
+          </span>
+        </div>
+
+        <div class="card-desc">${c.description}</div>
+
+        ${imagesHTML}
+
+        <div class="card-meta">
+          <span class="cat-tag">📁 ${c.category}</span>
+          ${c.location ? `<span class="meta-item">📍 ${c.location}</span>` : ''}
+          <span class="meta-item">🗓 ${date}</span>
+        </div>
+
+        <div class="comment-section">
+          <button class="comment-toggle" onclick="toggleComment('${c._id}', ${i})">
+            💬 Add comment / update
+          </button>
+          <div class="comment-box" id="comment-box-${i}">
+            <textarea class="comment-input" id="comment-input-${i}"></textarea>
+            <button class="comment-send" onclick="sendComment('${c._id}', ${i})">Send</button>
+          </div>
+        </div>
+      </div>
+    `;
+      }).join('');
+    }
+
+    // ✅ FIXED FILTERS
+    function filterComplaints(status, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      if (status === 'pending') status = 'Pending';
+      if (status === 'in_progress') status = 'In Progress';
+      if (status === 'resolved') status = 'Resolved';
+
+      currentFilter = status === 'all' ? 'all' : status;
+      renderCards(currentFilter);
+    }
+
+    function toggleComment(id, i) {
+      document.getElementById(`comment-box-${i}`).classList.toggle('open');
+    }
+
+    async function sendComment(id, i) {
+      const input = document.getElementById(`comment-input-${i}`);
+      const text = input.value.trim();
+      if (!text) return;
+
+      try {
+        await CommentsAPI.createComment(id, { text });
+        alert('Comment sent!');
+        input.value = '';
+        document.getElementById(`comment-box-${i}`).classList.remove('open');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function logout() {
+      AuthAPI.logout();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (!AuthManager.isLoggedIn()) {
+        document.body.style.visibility = 'visible';
+        showAuthWall('myConplaints.html');
+        return;
+      }
+      document.body.style.visibility = 'visible';
+      initUserInfo();
+      loadComplaints();
+    });
+  </script>
+
+</body>
+
+</html>

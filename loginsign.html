@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ComplainPortal — Login / Signup</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background-color: #0d1b2a;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-card {
+      background-color: #112236;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .tabs {
+      display: flex;
+      background-color: #0d1b2a;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 32px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      color: #64748b;
+      border: none;
+      background: transparent;
+    }
+
+    .tab.active {
+      background-color: #14b8a6;
+      color: #0d1b2a;
+      font-weight: 700;
+    }
+
+    .form {
+      display: none;
+    }
+
+    .form.active {
+      display: block;
+    }
+
+    .form-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 7px;
+    }
+
+    input {
+      width: 100%;
+      padding: 11px 14px;
+      background-color: #0d1b2a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #14b8a6;
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background-color: #14b8a6;
+      color: #0d1b2a;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="auth-card">
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Login</button>
+      <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="form active" id="login-form">
+      <div class="form-title">Welcome back</div>
+      <div class="form-subtitle">Login to track complaints</div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" required />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Enter password" required />
+      </div>
+
+      <button class="btn-submit" onclick="handleLogin(event)">Login</button>
+      <div id="login-error" class="error-message"
+        style="color: #ef4444; font-size: 14px; margin-top: 10px; display: none;"></div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div class="form" id="signup-form">
+      <div class="form-title">Create account</div>
+      <div class="form-subtitle">Register to file complaints</div>
+
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="signup-name" placeholder="Your name" required />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="you@example.com" required />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signup-password" placeholder="Create password" required />
+      </div>
+
+      <button class="btn-submit" onclick="handleSignup(event)">Create Account</button>
+      <div id="signup-error" class="error-message"
+        style="color: #ef4444; font-size: 14px; margin-top: 10px; display: none;"></div>
+    </div>
+
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+
+      if (tab === 'login') {
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        document.getElementById('login-form').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('signup-form').classList.add('active');
+      }
+    }
+
+    async function handleLogin(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const errorDiv = document.getElementById('login-error');
+
+      if (!email || !password) {
+        errorDiv.textContent = 'Please fill in all fields';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await AuthAPI.login({ email, password });
+        errorDiv.style.display = 'none';
+
+        // Role-based redirect
+        const user = AuthManager.getUser();
+        if (user && user.role === 'admin') {
+          window.location.href = 'adminDashboard.html';
+        } else {
+          // Check if there was a pending redirect (e.g. from "File a Complaint")
+          const redirect = sessionStorage.getItem('redirectAfterLogin');
+          sessionStorage.removeItem('redirectAfterLogin');
+          window.location.href = redirect || 'index1.html';
+        }
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    async function handleSignup(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('signup-name').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      const errorDiv = document.getElementById('signup-error');
+
+      if (!name || !email || !password) {
+        errorDiv.textContent = 'Please fill in all fields';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await AuthAPI.register({
+          name,
+          email,
+          password,
+          role: 'citizen'
+        });
+        errorDiv.style.display = 'none';
+
+        // Citizens go to landing page after signup
+        window.location.href = 'index1.html';
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    // Check if already logged in
+    if (AuthManager.isLoggedIn()) {
+      const user = AuthManager.getUser();
+      if (user && user.role === 'admin') {
+        window.location.href = 'adminDashboard.html';
+      } else {
+        window.location.href = 'index1.html';
+      }
+    }
+  </script>
+
+</body>
+
+</html>

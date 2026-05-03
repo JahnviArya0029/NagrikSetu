@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ComplainPortal — Public Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: #0d1b2a;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: #14b8a6;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0d1b2a;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      list-style: none;
+    }
+    .nav-links li {
+      margin: 0 25px;
+    }
+
+    .nav-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 15px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .nav-links a.active {
+      color: #fff;
+    }
+
+    .btn-primary {
+      background: #14b8a6;
+      color: #0d1b2a;
+      font-weight: 700;
+      padding: 9px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #0f9488;
+    }
+
+    /* ── Hero banner ── */
+    .hero {
+      background: linear-gradient(135deg, #112236 0%, #0d1b2a 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 40px 40px 32px;
+      text-align: center;
+    }
+
+    .hero-label {
+      display: inline-block;
+      background: rgba(20, 184, 166, 0.15);
+      color: #14b8a6;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .hero-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+
+    /* ── Search bar ── */
+    .search-wrap {
+      display: flex;
+      gap: 10px;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: #0d1b2a;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input::placeholder {
+      color: #334155;
+    }
+
+    .search-input:focus {
+      border-color: #14b8a6;
+    }
+
+    .btn-search {
+      padding: 12px 22px;
+      background: #14b8a6;
+      color: #0d1b2a;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-search:hover {
+      background: #0f9488;
+    }
+
+    .btn-clear {
+      padding: 12px 16px;
+      background: transparent;
+      color: #64748b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      display: none;
+    }
+
+    .btn-clear:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* ── Container ── */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 36px 24px;
+    }
+
+    /* ── Stats ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: #112236;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    .s-total {
+      color: #fff;
+    }
+
+    .s-pending {
+      color: #f59e0b;
+    }
+
+    .s-progress {
+      color: #3b82f6;
+    }
+
+    .s-resolved {
+      color: #14b8a6;
+    }
+
+    /* ── Filter tabs ── */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: transparent;
+      color: #94a3b8;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .filter-btn:hover {
+      border-color: #14b8a6;
+      color: #14b8a6;
+    }
+
+    .filter-btn.active {
+      background: #14b8a6;
+      color: #0d1b2a;
+      border-color: #14b8a6;
+      font-weight: 700;
+    }
+
+    .filter-count {
+      margin-left: auto;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    /* ── Cards ── */
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background: #112236;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 20px 24px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(20, 184, 166, 0.25);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .card-id {
+      font-size: 11px;
+      color: #475569;
+      font-family: monospace;
+      margin-bottom: 3px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .cat-tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.06);
+      color: #94a3b8;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .badge-pending .badge-dot {
+      background: #f59e0b;
+    }
+
+    .badge-progress {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+    }
+
+    .badge-progress .badge-dot {
+      background: #60a5fa;
+    }
+
+    .badge-resolved {
+      background: rgba(20, 184, 166, 0.15);
+      color: #14b8a6;
+    }
+
+    .badge-resolved .badge-dot {
+      background: #14b8a6;
+    }
+
+    /* Read only notice */
+    .readonly-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+
+    .readonly-note span {
+      color: #14b8a6;
+      font-weight: 600;
+    }
+
+    /* Empty / no result */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #475569;
+      display: none;
+    }
+
+    .empty-icon {
+      font-size: 38px;
+      margin-bottom: 12px;
+    }
+
+    .empty h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .empty p {
+      font-size: 13px;
+    }
+
+    /* Search highlight */
+    .highlight {
+      background: rgba(20, 184, 166, 0.25);
+      border-radius: 3px;
+      padding: 0 2px;
+      color: #14b8a6;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      nav {
+        padding: 14px 16px;
+      }
+
+      .hero {
+        padding: 28px 16px;
+      }
+
+      .search-wrap {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <a href="index1.html" class="logo">
+      <div class="logo-icon">NS</div>
+      <span class="logo-text">NagrikSetu</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index1.html#how-it-works">How It Works</a></li>
+      <li><a href="publicTracker.html" class="active">Track Complaint</a></li>
+      <li><a href="about.html">About</a></li>
+      <li id="admin-link" style="display: none;"><a href="adminDashboard.html">Admin Dashboard</a></li>
+    </ul>
+    <button class="btn-primary" onclick="fileComplaintRedirect()">File Complaint</button>
+  </nav>
+
+  <!-- Hero + Search -->
+  <div class="hero">
+    <div class="hero-label">🔍 Public Tracker</div>
+    <div class="hero-title">Track Any Complaint</div>
+    <div class="hero-sub">Search by complaint ID or browse all public complaints below.</div>
+    <div class="search-wrap">
+      <input type="text" class="search-input" id="search-input" placeholder="Search by ID (e.g. CP-001) or keyword..."
+        oninput="handleSearch()" onkeydown="if(event.key==='Enter') handleSearch()" />
+      <button class="btn-search" onclick="handleSearch()">Search</button>
+      <button class="btn-clear" id="btn-clear" onclick="clearSearch()">Clear</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num s-total" id="s-total">0</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num s-pending" id="s-pending">0</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num s-progress" id="s-progress">0</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num s-resolved" id="s-resolved">0</div>
+        <div class="stat-label">Resolved</div>
+      </div>
+    </div>
+
+    <!-- Read-only notice -->
+    <div class="readonly-note">
+      👁 <span>View only.</span> You are browsing as a public visitor. Login to file or comment on complaints.
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterCards('all', this)">All</button>
+      <button class="filter-btn" onclick="filterCards('pending', this)">Pending</button>
+      <button class="filter-btn" onclick="filterCards('in_progress', this)">In Progress</button>
+      <button class="filter-btn" onclick="filterCards('resolved', this)">Resolved</button>
+      <span class="filter-count" id="filter-count"></span>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards" id="cards-container"></div>
+
+    <!-- Empty state -->
+    <div class="empty" id="empty-state">
+      <div class="empty-icon">🔎</div>
+      <h3>No complaints found</h3>
+      <p id="empty-msg">Try a different search term or filter.</p>
+    </div>
+
+  </div>
+
+  <script>
+    // Sample data — replace with fetch('/api/complaints') when backend is ready
+    // TODO: fetch('/api/complaints') — no auth token needed (public route)
+    const complaints = [
+      {
+        id: 'CP-001', title: 'Large pothole on MG Road near bus stop',
+        description: 'Large pothole near Gandhi Chowk bus stop on MG Road causing vehicle damage. Present for over 3 weeks.',
+        category: 'Pothole / Road', date: '19 Mar 2024', status: 'pending', location: 'MG Road, Gandhi Chowk'
+      },
+      {
+        id: 'CP-002', title: 'Street light not working for 2 weeks',
+        description: 'Street light in front of Galaxy Apartments, Sector 12 non-functional. Area is unsafe at night.',
+        category: 'Street Light', date: '15 Mar 2024', status: 'in_progress', location: 'Sector 12, Galaxy Apartments'
+      },
+      {
+        id: 'CP-003', title: 'Garbage not collected for 5 days',
+        description: 'Waste piling up in Green Colony Block B causing bad smell and hygiene concerns.',
+        category: 'Garbage / Waste', date: '10 Mar 2024', status: 'resolved', location: 'Green Colony, Block B'
+      },
+      {
+        id: 'CP-004', title: 'Drainage overflow on Main Street',
+        description: 'Sewage overflowing onto the footpath near the main market area, posing a health risk.',
+        category: 'Drainage / Sewage', date: '18 Mar 2024', status: 'pending', location: 'Main Market, Street 4'
+      },
+      {
+        id: 'CP-005', title: 'Water supply cut since 3 days',
+        description: 'No water supply in Sector 5 for 3 consecutive days. Residents are severely affected.',
+        category: 'Water Supply', date: '17 Mar 2024', status: 'in_progress', location: 'Sector 5'
+      },
+      {
+        id: 'CP-006', title: 'Loud noise from construction at night',
+        description: 'Construction work happening past midnight near Residency Road causing disturbance.',
+        category: 'Noise Pollution', date: '16 Mar 2024', status: 'resolved', location: 'Residency Road'
+      }
+    ];
+
+    const statusConfig = {
+      pending: { label: 'Pending', cls: 'badge-pending' },
+      in_progress: { label: 'In Progress', cls: 'badge-progress' },
+      resolved: { label: 'Resolved', cls: 'badge-resolved' }
+    };
+
+    let currentFilter = 'all';
+    let currentSearch = '';
+
+    // Update stats (always from full data)
+    function updateStats() {
+      document.getElementById('s-total').textContent = complaints.length;
+      document.getElementById('s-pending').textContent = complaints.filter(c => c.status === 'pending').length;
+      document.getElementById('s-progress').textContent = complaints.filter(c => c.status === 'in_progress').length;
+      document.getElementById('s-resolved').textContent = complaints.filter(c => c.status === 'resolved').length;
+    }
+
+    // Highlight search term in text
+    function highlight(text, term) {
+      if (!term) return text;
+      const regex = new RegExp(`(${term})`, 'gi');
+      return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    // Render cards
+    function renderCards() {
+      const container = document.getElementById('cards-container');
+      const empty = document.getElementById('empty-state');
+      const emptyMsg = document.getElementById('empty-msg');
+
+      let data = complaints;
+
+      // Apply status filter
+      if (currentFilter !== 'all') {
+        data = data.filter(c => c.status === currentFilter);
+      }
+
+      // Apply search
+      if (currentSearch) {
+        const term = currentSearch.toLowerCase();
+        data = data.filter(c =>
+          c.id.toLowerCase().includes(term) ||
+          c.title.toLowerCase().includes(term) ||
+          c.description.toLowerCase().includes(term) ||
+          c.category.toLowerCase().includes(term)
+        );
+      }
+
+      document.getElementById('filter-count').textContent =
+        `${data.length} complaint${data.length !== 1 ? 's' : ''}`;
+
+      if (data.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        emptyMsg.textContent = currentSearch
+          ? `No complaints found for "${currentSearch}".`
+          : 'No complaints match this filter.';
+        return;
+      }
+
+      empty.style.display = 'none';
+      container.innerHTML = data.map(c => {
+        const s = statusConfig[c.status];
+        const titleHL = highlight(c.title, currentSearch);
+        const descHL = highlight(c.description, currentSearch);
+        return `
+          <div class="card">
+            <div class="card-top">
+              <div>
+                <div class="card-id">#${c.id}</div>
+                <div class="card-title">${titleHL}</div>
+              </div>
+              <span class="badge ${s.cls}">
+                <span class="badge-dot"></span>${s.label}
+              </span>
+            </div>
+            <div class="card-desc">${descHL}</div>
+            <div class="card-meta">
+              <span class="cat-tag">📁 ${c.category}</span>
+              <span>📍 ${c.location}</span>
+              <span>🗓 ${c.date}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Filter by status
+    function filterCards(status, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = status;
+      renderCards();
+    }
+
+    // Handle search
+    function handleSearch() {
+      currentSearch = document.getElementById('search-input').value.trim();
+      document.getElementById('btn-clear').style.display = currentSearch ? 'block' : 'none';
+      renderCards();
+    }
+
+    // Clear search
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      currentSearch = '';
+      document.getElementById('btn-clear').style.display = 'none';
+      renderCards();
+    }
+
+    // Init
+    updateStats();
+    renderCards();
+  </script>
+
+  <script src="api.js"></script>
+  <script>
+    // Show admin link if admin
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof initUserInfo === 'function') {
+        initUserInfo();
+      }
+    });
+  </script>
+
+</body>
+
+</html>

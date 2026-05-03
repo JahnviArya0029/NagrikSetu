@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Complaint — NagrikSetu</title>
+  <link rel="stylesheet" href="stylecomplaint.css">
+
+  <!-- Leaflet CSS — served locally, no CDN -->
+  <link rel="stylesheet" href="leaflet/leaflet.css"/>
+
+  <style>
+    .upload-box {
+      border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; padding: 28px;
+      text-align: center; color: #475569; font-size: 14px; cursor: pointer;
+      transition: all 0.2s; line-height: 1.8;
+    }
+    .upload-box:hover, .upload-box.drag-over {
+      border-color: #14b8a6; color: #14b8a6; background: rgba(20,184,166,0.05);
+    }
+    .upload-box small { display: block; font-size: 12px; color: #334155; margin-top: 4px; }
+    .preview-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .file-chip {
+      display: flex; align-items: center; gap: 10px; background: #112236;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 14px; max-width: 340px;
+    }
+    .pdf-badge {
+      width: 36px; height: 36px; background: #dc2626; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .img-badge { width: 36px; height: 36px; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+    .img-badge img { width: 100%; height: 100%; object-fit: cover; }
+    .file-info { flex: 1; overflow: hidden; }
+    .file-name { font-size: 13px; font-weight: 500; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-size { font-size: 11px; color: #475569; margin-top: 2px; }
+    .remove-btn { background: none; border: none; color: #64748b; cursor: pointer; font-size: 16px; padding: 0 2px; transition: color 0.2s; flex-shrink: 0; }
+    .remove-btn:hover { color: #ef4444; }
+    .file-count { font-size: 12px; color: #14b8a6; margin-top: 6px; display: none; }
+    .error-msg {
+      display: none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+      color: #f87171; font-size: 13px; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;
+    }
+
+    /* ── Map ── */
+    .map-label-row { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 8px; }
+    .map-label-row label { margin: 0; font-size: 14px; }
+    .map-hint { font-size: 12px; color: #64748b; }
+
+    #complaint-map {
+      width: 100%;
+      height: 320px;        /* REQUIRED — Leaflet needs explicit pixel height */
+      border-radius: 10px;
+      border: 2px solid #1f3f52;
+      position: relative;   /* required for Leaflet internal layers */
+      z-index: 0;
+      background: #1a3a52;  /* shows while tiles load */
+      overflow: hidden;
+    }
+    #complaint-map.map-active { border-color: #14b8a6; }
+
+    #location-status { margin-top: 8px; font-size: 13px; color: #64748b; min-height: 20px; }
+    #location-status.ok  { color: #14b8a6; }
+    #location-status.err { color: #f87171; }
+
+    .locate-btn {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+      padding: 7px 14px; background: transparent; border: 1px solid #1f3f52;
+      border-radius: 7px; color: #94a3b8; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .locate-btn:hover { border-color: #14b8a6; color: #14b8a6; }
+    .locate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Dark theme for Leaflet controls */
+    .leaflet-control-zoom a {
+      background: #0f2a3d !important; color: #e2e8f0 !important; border-color: #1f3f52 !important;
+    }
+    .leaflet-control-zoom a:hover { background: #14b8a6 !important; color: #022c22 !important; }
+    .leaflet-bar { border-color: #1f3f52 !important; box-shadow: none !important; }
+    .leaflet-control-attribution { background: rgba(11,29,42,0.85) !important; color: #64748b !important; font-size: 10px; }
+    .leaflet-control-attribution a { color: #14b8a6 !important; }
+  </style>
+</head>
+<body style="visibility: hidden;">
+
+<nav class="nav">
+  <div class="logo"><span class="logo-box">NS</span><span>NagrikSetu</span></div>
+  <ul class="nav-links">
+    <li><a href="index1.html#how-it-works">How It Works</a></li>
+    <li><a href="publicTracker.html">Track Complaint</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="back" onclick="window.location.href='index1.html'">← Back to Home</div>
+</nav>
+
+<section class="header">
+  <h1>File a Complaint</h1>
+  <p>Describe your issue in detail. All complaints are reviewed within 48 hours.</p>
+</section>
+
+<div class="form-card">
+  <form id="complaintForm" onsubmit="submitComplaint(event)">
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <h3>Complaint Details</h3>
+    <p class="sub">Provide as much detail as possible to help us act quickly.</p>
+
+    <div class="row">
+      <div>
+        <label>Category *</label>
+        <select id="category" required>
+          <option value="">Select a category</option>
+          <option value="Infrastructure">Infrastructure</option>
+          <option value="Sanitation">Sanitation</option>
+          <option value="Water Supply">Water Supply</option>
+          <option value="Electricity">Electricity</option>
+          <option value="Roads">Roads</option>
+          <option value="Public Transport">Public Transport</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Education">Education</option>
+          <option value="Law Enforcement">Law Enforcement</option>
+          <option value="Environment">Environment</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label>Priority Level</label>
+        <select id="priority">
+          <option value="Medium">Medium — Affects daily life</option>
+          <option value="Low">Low</option>
+          <option value="High">High</option>
+          <option value="Urgent">Urgent</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Subject *</label>
+    <input type="text" id="title" placeholder="Brief summary of the issue" required/>
+
+    <label>Description *</label>
+    <textarea id="description" placeholder="Describe the issue in detail..." required></textarea>
+
+    <label>Address / Landmark</label>
+    <input type="text" id="location" placeholder="Street address or area name (optional)"/>
+
+    <div class="map-label-row">
+      <label>Pin Location on Map *</label>
+      <span class="map-hint">Click the map · drag pin to adjust</span>
+    </div>
+
+    <div id="complaint-map"></div>
+
+    <button type="button" class="locate-btn" id="locate-btn" onclick="locateMe()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+      </svg>
+      Use my current location
+    </button>
+
+    <div id="location-status">No location pinned yet.</div>
+
+    <input type="hidden" id="lat" name="lat"/>
+    <input type="hidden" id="lng" name="lng"/>
+
+    <h3 style="margin-top:28px;">Supporting Evidence</h3>
+    <p class="sub">Upload photos or documents (max 5 files).</p>
+
+    <div class="upload-box" id="upload-box" onclick="document.getElementById('files').click()">
+      📎 Click to upload or drag &amp; drop
+      <small>PNG, JPG, PDF up to 10 MB each · max 5 files</small>
+    </div>
+    <input type="file" id="files" multiple accept="image/*,.pdf" hidden/>
+    <div class="file-count" id="file-count"></div>
+    <div class="preview-list" id="preview-list"></div>
+
+    <div class="actions">
+      <button type="button" class="btn-cancel" onclick="window.location.href='index1.html'">Cancel</button>
+      <button type="submit" class="btn-submit" id="submit-btn">Submit Complaint</button>
+    </div>
+  </form>
+</div>
+
+<footer class="footer">
+  <div class="footer-left"><span class="logo-box">NS</span><span>NagrikSetu</span></div>
+  <div class="footer-links"><a>About</a><a>Privacy</a><a>Terms</a><a>Contact</a></div>
+  <div class="footer-right">© 2026 NagrikSetu</div>
+</footer>
+
+<!--
+  Leaflet JS must be:
+  1. LOCAL (not CDN)
+  2. Loaded AFTER the #complaint-map div exists in the DOM
+  3. Loaded BEFORE our script uses L.*
+-->
+<script src="leaflet/leaflet.js"></script>
+<script src="api.js"></script>
+<script>
+'use strict';
+
+/* ── Fix Leaflet marker icon paths (breaks when not using CDN) ── */
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl:       'leaflet/marker-icon.png',
+  iconRetinaUrl: 'leaflet/marker-icon-2x.png',
+  shadowUrl:     'leaflet/marker-shadow.png',
+});
+
+/* ═══════════════════════════════════════
+   MAP — runs immediately because this script
+   is at the bottom of body, after the map div
+═══════════════════════════════════════ */
+var map = L.map('complaint-map', {
+  center: [20.5937, 78.9629],
+  zoom: 5,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+  maxZoom: 19,
+}).addTo(map);
+
+map.on('click', function (e) {
+  placeMarker(e.latlng.lat, e.latlng.lng);
+});
+
+// Force Leaflet to recalculate tile grid after CSS layout settles
+setTimeout(function () { map.invalidateSize(); }, 300);
+
+var marker;
+
+function placeMarker(lat, lng) {
+  if (marker) {
+    marker.setLatLng([lat, lng]);
+  } else {
+    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+    marker.on('dragend', function (e) {
+      var p = e.target.getLatLng();
+      setCoords(p.lat, p.lng);
+    });
+  }
+  map.panTo([lat, lng]);
+  setCoords(lat, lng);
+  document.getElementById('complaint-map').classList.add('map-active');
+}
+
+function setCoords(lat, lng) {
+  document.getElementById('lat').value = lat.toFixed(6);
+  document.getElementById('lng').value = lng.toFixed(6);
+  var s = document.getElementById('location-status');
+  s.className   = 'ok';
+  s.textContent = '📍 Pinned: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ' — drag to adjust';
+}
+
+function locateMe() {
+  var btn = document.getElementById('locate-btn');
+  var s   = document.getElementById('location-status');
+  if (!navigator.geolocation) {
+    s.className = 'err';
+    s.textContent = 'Geolocation not supported by this browser.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Locating…';
+  s.className = ''; s.textContent = 'Detecting your location…';
+  navigator.geolocation.getCurrentPosition(
+    function (pos) {
+      placeMarker(pos.coords.latitude, pos.coords.longitude);
+      map.setView([pos.coords.latitude, pos.coords.longitude], 15);
+      btn.disabled = false;
+      btn.innerHTML = locateBtnHTML();
+    },
+    function () {
+      btn.disabled = false;
+      btn.innerHTML = locateBtnHTML();
+      s.className = 'err';
+      s.textContent = 'Could not detect location. Pin manually on the map.';
+    },
+    { timeout: 10000, enableHighAccuracy: true }
+  );
+}
+
+function locateBtnHTML() {
+  return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg> Use my current location';
+}
+
+/* ═══════════════════════════════════════
+   FILE UPLOAD
+═══════════════════════════════════════ */
+var selectedFiles = [];
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (!AuthManager.isLoggedIn()) {
+    // Show auth-wall modal; keep page hidden underneath
+    document.body.style.visibility = 'visible'; // show backdrop
+    showAuthWall('complaint.html');
+    return;
+  }
+
+  // Authenticated — reveal page and initialise
+  document.body.style.visibility = 'visible';
+  initUserInfo();
+
+  document.getElementById('files').addEventListener('change', function (e) {
+    handleNewFiles(Array.from(e.target.files));
+    e.target.value = '';
+  });
+
+  var box = document.getElementById('upload-box');
+  box.addEventListener('dragover',  function (e) { e.preventDefault(); box.classList.add('drag-over'); });
+  box.addEventListener('dragleave', function ()  { box.classList.remove('drag-over'); });
+  box.addEventListener('drop', function (e) {
+    e.preventDefault(); box.classList.remove('drag-over');
+    handleNewFiles(Array.from(e.dataTransfer.files));
+  });
+
+  // Extra invalidateSize pass after full layout paint
+  setTimeout(function () { if (map) map.invalidateSize(); }, 600);
+});
+
+function handleNewFiles(files) {
+  var rem = 5 - selectedFiles.length;
+  files.slice(0, rem).forEach(function (f) { selectedFiles.push(f); renderChip(f, selectedFiles.length - 1); });
+  updateFileCount();
+}
+function formatSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function renderChip(file, i) {
+  var list = document.getElementById('preview-list');
+  var chip = document.createElement('div'); chip.className = 'file-chip'; chip.id = 'chip-' + i;
+  var rm = '<button class="remove-btn" onclick="removeFile(' + i + ')" type="button">✕</button>';
+  if (file.type === 'application/pdf') {
+    chip.innerHTML = '<div class="pdf-badge">PDF</div><div class="file-info"><div class="file-name">' + esc(file.name) + '</div><div class="file-size">' + formatSize(file.size) + '</div></div>' + rm;
+  } else {
+    var r = new FileReader();
+    r.onload = function (e) {
+      chip.innerHTML = '<div class="img-badge"><img src="' + e.target.result + '" alt=""/></div><div class="file-info"><div class="file-name">' + esc(file.name) + '</div><div class="file-size">' + formatSize(file.size) + '</div></div>' + rm;
+    };
+    r.readAsDataURL(file);
+  }
+  list.appendChild(chip);
+}
+function removeFile(i) {
+  selectedFiles.splice(i, 1);
+  document.getElementById('preview-list').innerHTML = '';
+  selectedFiles.forEach(function (f, idx) { renderChip(f, idx); });
+  updateFileCount();
+}
+function updateFileCount() {
+  var el = document.getElementById('file-count');
+  el.style.display = selectedFiles.length ? 'block' : 'none';
+  if (selectedFiles.length) el.textContent = selectedFiles.length + ' of 5 file' + (selectedFiles.length > 1 ? 's' : '') + ' selected';
+}
+
+/* ═══════════════════════════════════════
+   SUBMIT
+═══════════════════════════════════════ */
+function showError(msg) {
+  var el = document.getElementById('error-msg');
+  el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+  if (msg) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function submitComplaint(e) {
+  e.preventDefault(); showError('');
+  var title       = document.getElementById('title').value.trim();
+  var description = document.getElementById('description').value.trim();
+  var category    = document.getElementById('category').value;
+  var priority    = document.getElementById('priority').value;
+  var location    = document.getElementById('location').value.trim();
+  var lat         = document.getElementById('lat').value;
+  var lng         = document.getElementById('lng').value;
+
+  if (!title || !description || !category) { showError('Please fill in all required fields.'); return; }
+
+  if (!lat || !lng) {
+    var s = document.getElementById('location-status');
+    s.className = 'err'; s.textContent = '❌ Please pin a location on the map before submitting.';
+    document.getElementById('complaint-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  var fd = new FormData();
+  fd.append('title', title); fd.append('description', description);
+  fd.append('category', category); fd.append('priority', priority);
+  fd.append('location', location); fd.append('lat', lat); fd.append('lng', lng);
+  selectedFiles.forEach(function (f) { fd.append('attachments', f); });
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    var res = await ComplaintsAPI.create(fd);
+    alert('✅ Complaint submitted! Your ID: ' + (res.data._id || '').slice(-8).toUpperCase() + '\n\nRedirecting to your complaints...');
+    document.getElementById('complaintForm').reset();
+    selectedFiles = []; document.getElementById('preview-list').innerHTML = ''; updateFileCount();
+    if (marker) { map.removeLayer(marker); marker = null; }
+    document.getElementById('lat').value = ''; document.getElementById('lng').value = '';
+    document.getElementById('location-status').className = '';
+    document.getElementById('location-status').textContent = 'No location pinned yet.';
+    document.getElementById('complaint-map').classList.remove('map-active');
+    setTimeout(function () { window.location.href = 'myConplaints.html'; }, 1500);
+  } catch (err) {
+    showError('Error: ' + err.message);
+    btn.disabled = false; btn.textContent = 'Submit Complaint';
+  }
+}
+</script>
+</body>
+</html>

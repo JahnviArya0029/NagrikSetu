@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ComplainPortal — Admin Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: #0d1b2a;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: #14b8a6;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0d1b2a;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-badge {
+      background: rgba(20, 184, 166, 0.15);
+      color: #14b8a6;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(20, 184, 166, 0.3);
+    }
+
+    .nav-name {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #f59e0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #0d1b2a;
+    }
+
+    .btn-logout {
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 24px;
+    }
+
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .page-sub {
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    /* ── Stats ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: #112236;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .s-total {
+      color: #fff;
+    }
+
+    .s-pending {
+      color: #f59e0b;
+    }
+
+    .s-progress {
+      color: #3b82f6;
+    }
+
+    .s-resolved {
+      color: #14b8a6;
+    }
+
+    /* ── Filters ── */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      color: #64748b;
+      margin-right: 4px;
+    }
+
+    select {
+      padding: 8px 14px;
+      background: #112236;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+
+    select:focus {
+      border-color: #14b8a6;
+    }
+
+    .result-count {
+      margin-left: auto;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: #112236;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      background: #0d1b2a;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    td {
+      padding: 14px 16px;
+      vertical-align: top;
+    }
+
+    .td-id {
+      font-family: monospace;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .td-title {
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+
+    .td-desc {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    .td-citizen {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .td-date {
+      font-size: 12px;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    /* Category tag */
+    .cat-tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.06);
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .badge-pending .badge-dot {
+      background: #f59e0b;
+    }
+
+    .badge-progress {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+    }
+
+    .badge-progress .badge-dot {
+      background: #60a5fa;
+    }
+
+    .badge-resolved {
+      background: rgba(20, 184, 166, 0.15);
+      color: #14b8a6;
+    }
+
+    .badge-resolved .badge-dot {
+      background: #14b8a6;
+    }
+
+    /* Status dropdown in table */
+    .status-select {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      outline: none;
+      background: #0d1b2a;
+      color: #fff;
+      transition: border-color 0.2s;
+      appearance: none;
+      padding-right: 24px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+    }
+
+    .status-select:focus {
+      border-color: #14b8a6;
+    }
+
+    /* Empty state */
+    .empty-row td {
+      text-align: center;
+      padding: 48px;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #14b8a6;
+      color: #0d1b2a;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 700px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      nav {
+        padding: 14px 16px;
+      }
+
+      .container {
+        padding: 24px 14px;
+      }
+    }
+  </style>
+</head>
+
+<body data-skip-nav-inject="true">
+
+  <!-- Navbar -->
+  <nav>
+    <a href="index1.html" class="logo">
+      <div class="logo-icon">NS</div>
+      <span class="logo-text">NagrikSetu</span>
+    </a>
+    <div class="nav-right">
+      <span class="admin-badge">Admin</span>
+      <div class="avatar" id="avatar">AD</div>
+      <span class="nav-name" id="nav-name">Admin</span>
+      <button class="btn-logout" onclick="AuthAPI.logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="page-title">Admin Dashboard</div>
+      <div class="page-sub">Manage and resolve all citizen complaints</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num s-total" id="s-total">0</div>
+        <div class="stat-label">Total Complaints</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num s-pending" id="s-pending">0</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num s-progress" id="s-progress">0</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num s-resolved" id="s-resolved">0</div>
+        <div class="stat-label">Resolved</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <span class="filter-label">Filter:</span>
+      <select id="filter-status" onchange="applyFilters()">
+        <option value="all">All statuses</option>
+        <option value="Pending">Pending</option>
+        <option value="Under Review">Under Review</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <select id="filter-category" onchange="applyFilters()">
+        <option value="all">All categories</option>
+        <option value="Pothole / Road">Pothole / Road</option>
+        <option value="Water Supply">Water Supply</option>
+        <option value="Garbage / Waste">Garbage / Waste</option>
+        <option value="Street Light">Street Light</option>
+        <option value="Drainage / Sewage">Drainage / Sewage</option>
+        <option value="Noise Pollution">Noise Pollution</option>
+        <option value="Other">Other</option>
+      </select>
+      <span class="result-count" id="result-count"></span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Complaint</th>
+            <th>Category</th>
+            <th>Citizen</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Update</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast">✓ Status updated</div>
+
+  <script>
+    // Sample data — replace with fetch('/api/complaints') when backend is ready
+    // TODO: fetch('/api/complaints', { headers: { Authorization: 'Bearer ' + token } })
+    let complaints = [];
+
+
+    const statusConfig = {
+      'Pending': { label: 'Pending', cls: 'badge-pending' },
+      'Under Review': { label: 'Under Review', cls: 'badge-progress' },
+      'In Progress': { label: 'In Progress', cls: 'badge-progress' },
+      'Resolved': { label: 'Resolved', cls: 'badge-resolved' },
+      'Closed': { label: 'Closed', cls: 'badge-resolved' },
+    };
+
+    // Update stats
+    function updateStats() {
+      document.getElementById('s-total').textContent = complaints.length;
+      document.getElementById('s-pending').textContent = complaints.filter(c => c.status === 'Pending').length;
+      document.getElementById('s-progress').textContent = complaints.filter(c => c.status === 'In Progress' || c.status === 'Under Review').length;
+      document.getElementById('s-resolved').textContent = complaints.filter(c => c.status === 'Resolved' || c.status === 'Closed').length;
+    }
+
+    // Render table
+    function renderTable(data) {
+      const tbody = document.getElementById('table-body');
+      document.getElementById('result-count').textContent = `${data.length} complaint${data.length !== 1 ? 's' : ''}`;
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No complaints match this filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(c => {
+        const s = statusConfig[c.status] || { label: c.status, cls: 'badge-pending' };
+        const citizen = c.user ? (c.user.name || c.user.email || 'Unknown') : 'Unknown';
+        const date = new Date(c.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        const shortId = c._id.toString().slice(-6).toUpperCase();
+        return `
+    <tr>
+      <td><span class="td-id">#${shortId}</span></td>
+      <td>
+        <div class="td-title">${c.title}</div>
+        <div class="td-desc">${c.description}</div>
+      </td>
+      <td><span class="cat-tag">${c.category}</span></td>
+      <td><span class="td-citizen">${citizen}</span></td>
+      <td><span class="td-date">${date}</span></td>
+      <td>
+        <span class="badge ${s.cls}">
+          <span class="badge-dot"></span>${s.label}
+        </span>
+      </td>
+      <td>
+        <select class="status-select" onchange="updateStatus('${c._id}', this.value)">
+                <option value="pending"     ${c.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="in_progress" ${c.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                <option value="resolved"    ${c.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const status = document.getElementById('filter-status').value;
+      const category = document.getElementById('filter-category').value;
+
+      let filtered = complaints;
+      if (status !== 'all') filtered = filtered.filter(c => c.status === status);
+      if (category !== 'all') filtered = filtered.filter(c => c.category === category);
+      renderTable(filtered);
+    }
+
+    // Update complaint status
+    async function loadComplaints() {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Loading complaints…</td></tr>`;
+      try {
+        const res = await ComplaintsAPI.getAllComplaints();
+        complaints = res.data || [];
+        updateStats();
+        applyFilters();
+      } catch (err) {
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="7" style="color:#f87171;">
+          ⚠ Failed to load: ${err.message || 'Server error. Is the backend running?'}
+          </td></tr>`;
+      }
+    }
+
+    async function updateStatus(id, newStatus) {
+      try {
+        await ComplaintsAPI.updateStatus(id, { status: newStatus });
+        const c = complaints.find(c => c._id === id);
+        if (c) c.status = newStatus;
+        updateStats();
+        applyFilters();
+        showToast(`Status updated to "${newStatus}"`);
+      } catch (err) {
+        showToast('Failed to update: ' + (err.message || 'Unknown error'));
+        applyFilters(); // revert dropdown back
+      }
+    }
+
+    // Toast notification
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+  </script>
+
+  <script src="api.js"></script>
+  <script>
+    // ── Guard: admin only ──
+    document.addEventListener('DOMContentLoaded', async function () {
+      if (!(await requireAdmin())) return;
+      initUserInfo();
+      await loadComplaints(); //fetches real data from backend
+    });
+  </script>
+
+</body>
+
+</html>
